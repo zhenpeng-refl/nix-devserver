@@ -26,6 +26,18 @@
     shellAliases = {
       glogin = "gcloud auth login --update-adc --quiet";
     };
+    # Shells descend from sshd and tailscaled, which the dev-vms oom-guard
+    # feature pins at OOM score -1000 so the VM stays reachable. Reset to 0 so
+    # earlyoom and the kernel can still kill what the shell starts. Same as
+    # /etc/oom-guard-session.sh, which only zsh and sh/bash source.
+    shellInit = ''
+      if test -w /proc/self/oom_score_adj
+          set -l adj (string trim </proc/self/oom_score_adj)
+          if string match -q -- '-*' $adj
+              echo 0 >/proc/self/oom_score_adj 2>/dev/null
+          end
+      end
+    '';
     interactiveShellInit = ''
       set -g fish_greeting
     '';
