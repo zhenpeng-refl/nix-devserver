@@ -43,13 +43,6 @@
     '';
   };
 
-  # Claude Code keeps session scratchpads and task outputs under
-  # /tmp/claude-<uid>, which the boot-time /tmp cleanup wipes. Point it at a
-  # directory in $HOME; the link is recreated at each login.
-  systemd.user.tmpfiles.rules = [
-    "L /tmp/claude-1047 - - - - ${config.home.homeDirectory}/claude-1047-preserve"
-  ];
-
   xdg.configFile."herdr/config.toml".text = ''
     onboarding = false
 
@@ -80,6 +73,10 @@
   home.sessionVariables.REFLECTION_USERNAME = "zhenpeng-refl";
 
   home.sessionVariables.DD_SITE = "us5.datadoghq.com";
+
+  # Claude Code keeps session scratchpads and task outputs under /tmp by
+  # default, which the boot-time /tmp cleanup wipes.
+  home.sessionVariables.CLAUDE_CODE_TMPDIR = "${config.home.homeDirectory}/claude-tmp";
 
   programs.mise = {
     enable = true;
